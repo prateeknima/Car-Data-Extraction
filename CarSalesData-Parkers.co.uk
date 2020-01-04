@@ -1,0 +1,81 @@
+#Extracting Used Car Sales Listings - Source https://www.parkers.co.uk/cars-for-sale/used/
+
+library ( htmltools )
+library ( rvest )
+library (xml 2)
+odd_ indexes <-seq(1,20,2)
+quater _ indexes <- seq (1,40,4)
+cleanMilesData <- function ( data ){
+data <- gsub ('[^0-9]',"",data )
+data <- as. numeric (as. character ( data ))
+}
+cleanCarNameData <- function ( data ){
+data <- gsub ('[[: punct :]] ',"",data )
+data <- gsub ('[[: cntrl :]] ',"",data )
+data <- gsub ('\\d+',"",data )
+return ( data )
+}
+cleanYearData <- function ( data ){
+data <- gsub ("/.* ","",data )
+return (as. numeric (as. character ( data )))
+}
+cleanPriceData <- function ( data ){
+data <- gsub ('[[: punct :]] ',"",data )
+data <- gsub ('[[: cntrl :]] ',"",data )
+return (as. numeric (as. character ( data )))
+}
+selectDataOdd <- function ( data ){
+data <- data [odd _ indexes ]
+return ( data )
+}
+selectDataQuarter <- function ( data ){
+data <- data [ quater _ indexes ]
+return ( data )
+}
+b = paste (" https :// www. parkers .co.uk/cars -for - sale / used /")
+url = read _ html (b)
+Car <- selectDataOdd (url %>% html _ nodes (". panel __ primary - link ")% >%
+html _ text ())
+Car <- cleanCarNameData (Car)
+Price <- selectDataOdd (url %>% html _ nodes
+(".for -sale -result - item __ price __ value ")% >% html _ text ())
+Price <- cleanPriceData ( Price )
+Year <- selectDataQuarter ( url %>% html _ nodes (".for -sale -
+result - item __ specs __ bullet :nth - child (1)")% >% html _ text ())
+Year <- cleanYearData ( Year )
+Miles <- selectDataQuarter (url %>% html _ nodes (".for -sale -
+result - item __ specs __ bullet :nth - child (2)")% >% html _ text ())
+Miles <- cleanMilesData ( Miles )
+Transmission <- selectDataQuarter (url %>% html _ nodes (".for -sale -
+result - item __ specs __ bullet :nth - child (3)")% >% html _ text ())
+Varient <- selectDataQuarter (url %>% html _ nodes (".for -sale -result -
+item __ specs __ bullet :nth - child (4)")% >% html _ text ())
+final <- data . frame (Car ,Miles ,Price ,Year , Transmission , Varient )
+final
+for(x in 2:1000) {
+b = paste (" https :// www. parkers .co.uk/cars -for - sale / used /? page ",
+x,sep = "=")
+url = read _ html (b)
+Car <- selectDataOdd (url %>% html _ nodes (". panel __ primary - link ")% >%
+html _ text ())
+Car <- cleanCarNameData (Car )
+Price <- selectDataOdd (url %>% html _ nodes (".for -sale -result -
+item __ price __ value ")% >% html _ text ())
+Price <- cleanPriceData ( Price )
+Year <- selectDataQuarter (url %>% html _ nodes (".for -sale -result -
+item __ specs __ bullet :nth - child (1)")% >% html _ text ())
+Year <- cleanYearData ( Year )
+Miles <- selectDataQuarter (url %>% html _ nodes (".for -sale -result -
+item __ specs __ bullet :nth - child (2)")% >% html _ text ())
+Miles <- cleanMilesData ( Miles )
+Transmission <- selectDataQuarter (url %>% html _ nodes (".for -sale -
+result - item __ specs __ bullet :nth - child (3)")% >% html _ text ())
+Varient <- selectDataQuarter (url %>% html _ nodes (".for -sale -
+result - item __ specs __ bullet :nth - child (4)")% >% html _ text ())
+f <- data . frame (Car ,Miles ,Price ,Year , Transmission , Varient )
+final <- rbind (final ,f)
+}
+final <- na. omit ( final ) # remove rows with missing values
+final <- tibble :: rownames _to_ column (final ,var="u_id")
+setwd ("C:\\ Users \\ MOLAP \\ Desktop \\ finalProcess ")
+write .csv(final , file = " used _ cars .csv", row. names = FALSE )
