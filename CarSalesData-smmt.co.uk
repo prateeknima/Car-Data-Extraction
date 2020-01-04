@@ -1,0 +1,21 @@
+#Car Sales Data - Source : https://www.smmt.co.uk/vehicle-data/car-registrations/
+
+library ( rvest )
+library (xml 2)
+link = paste (" https :// www . smmt .co.uk/ vehicle - data /car - registrations /")
+url = read _ html ( link )
+Brand <- url %>% html _ nodes ("tr~ tr+ tr td:nth - child (1)")% >% html _ text ()
+Sales <- url %>% html _ nodes ("tr~ tr+ tr td:nth - child (2)")% >% html _ text ()
+CarRegistration <- data . frame (Brand , Sales )
+CarRegistration $ Sales <- gsub ('[[: punct :]] ',"", CarRegistration $ Sales )
+CarRegistration $ Sales <- as. integer (as. character ( CarRegistration $ Sales ))
+CarRegistration <- CarRegistration [47:89 ,]
+CarRegistration
+final <- CarRegistration [ order (- CarRegistration $ Sales ),]
+rownames ( final ) <- NULL
+final <- final [1:16 ,]
+final <- tibble :: rownames _to_ column (final ,var=" sales _id")
+colnames ( final )<- c(" sales _id"," Brand "," Sales ")
+final
+setwd ("C:\\ Users \\ MOLAP \\ Desktop \\ finalProcess ")
+write .csv(final , file = "car_ sales .csv",row. names = FALSE )
